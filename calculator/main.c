@@ -163,6 +163,7 @@ SYMBOL_DATA** free_array_symbol(SYMBOL_DATA** arr);
 			 }break;
 			 case '+':
 			 case '-': {
+
 				 if (situation_stack == 0) {
 					 situation_stack--;
 				 }else
