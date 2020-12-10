@@ -1,9 +1,10 @@
 #define  _CRT_SECURE_NO_WARNINGS 
-#include <crtdbg.h>
 #include <stdio.h>
 #include<malloc.h>
 #include<string.h>
 #include<math.h>
+
+#include <crtdbg.h>
 #define MAX_LEN_EXP 1100
 #define ERROR_SYNTAX_ERROR -9999
 #define ERROR_DIVISION_BY_ZERO -9998
@@ -88,16 +89,18 @@ SYMBOL_DATA** parsing_str_to_array_symbol(char* str) {
 					}
 					buffer = malloc(sizeof(char) * 20);
 
-					buffer[0] = str[i];
+					buffer[0] = (char)str[i];
 					buffer[1] = '\0';
 
 					check_num = 1;
 				}
 				else {
 					//Exception: Float have more then 1 points 
-					if (str[i] == '.' && buffer != NULL && strchr(buffer, alf_operand[0]) != NULL) {
-						flag_error = 1;
-						break;
+					if (str[i] == '.' && strchr(buffer, alf_operand[0]) != NULL) {
+						if (buffer != NULL) {
+							flag_error = 1;
+							break;
+						}
 					}
 					buffer[check_num] = str[i];
 					buffer[check_num + 1] = '\0';
@@ -131,10 +134,11 @@ SYMBOL_DATA** free_array_symbol(SYMBOL_DATA** arr) {
 		int i = 0;
 		int flag = 0;
 		while (flag == 0) {
-			if ((*arr[i]).type == END)
+			if ((*arr[i]).type == END) {
 				flag = 1;
-			if (arr[i]->data != NULL)
-				free(arr[i]->data);
+			}
+			 
+			free(arr[i]->data);
 			free(arr[i]);
 			i++;
 
@@ -143,17 +147,19 @@ SYMBOL_DATA** free_array_symbol(SYMBOL_DATA** arr) {
 		 
 		return NULL;
 	}
+	return NULL;
 }
 SYMBOL_DATA** build_rpn(SYMBOL_DATA** arr) {
-	int i = 0;
+	int i = -1;
 	int situation_result = 0;
 	int situation_stack = -1;
 	int flag_operand = 0;
 	SYMBOL_DATA** result = malloc(sizeof(SYMBOL_DATA*) * MAX_LEN_EXP);
 	SYMBOL_DATA** stack = malloc(sizeof(SYMBOL_DATA*) * MAX_LEN_EXP);
 
-	while (1)
+	do
 	{
+		i++;
 		switch (arr[i]->type)
 		{
 		case  OPERAND:
@@ -237,8 +243,9 @@ SYMBOL_DATA** build_rpn(SYMBOL_DATA** arr) {
 			return result;
 		}break;
 		}
-		i++;
-	} while (1);
+	 
+	} while (arr[i]->type!=END);
+	return NULL;
 }
 
 double parsing_str_to_float(char* str) {
@@ -326,10 +333,9 @@ double calculate_by_string(char* string) {
 
 int main() {
 	char* str_expression = (char*)malloc(sizeof(char) * MAX_LEN_EXP);
-	double result = 0;
+	 
 	if (fgets(str_expression, MAX_LEN_EXP, stdin)) {
-
-		result = calculate_by_string(str_expression);
+		double result = calculate_by_string(str_expression);
 		if (result == ERROR_SYNTAX_ERROR) {
 			printf("syntax error");
 		}
@@ -342,5 +348,7 @@ int main() {
 		}
 		free(str_expression);
 	}
+
+	_CrtDumpMemoryLeaks();
 	return 0;
 }
